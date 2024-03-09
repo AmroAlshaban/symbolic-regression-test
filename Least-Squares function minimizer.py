@@ -27,7 +27,7 @@ class Regression():
         try:
             solution = sp.nsolve(equations_matrix, self.parameters, [0 for x in self.parameters])
             return np.array(solution.tolist())
-        except ZeroDivisionError:
+        except (ZeroDivisionError, ValueError):
             equations = lambda params: [sp.diff(decision, variable).subs(zip(self.parameters, params)) for variable in self.parameters]
             initial_guess = [1 for i in range(self.parameter_counts)]
             solutions = root(equations, initial_guess, method=approx_method)
