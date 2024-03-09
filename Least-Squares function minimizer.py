@@ -9,7 +9,10 @@ class Regression():
     def __init__(self, function: Union[sp.Expr, sp.Symbol], x_data: Union[list, np.array], y_data: Union[list, np.array], 
                  variables: List[sp.Symbol], parameters: Union[List[sp.Symbol]]):
         self.function = function
-        self.x_data = np.array(x_data)
+        if np.array(x_data).shape == (len(x_data),):
+            self.x_data = np.array([[t] for t in x_data])
+        else:
+            self.x_data = np.array(x_data)
         self.y_data = np.array(y_data)
         self.parameters = parameters
         self.variables = variables
@@ -33,10 +36,8 @@ class Regression():
             solutions = root(equations, initial_guess, method=approx_method)
             return np.array(solutions.x)
 
-    
     def regression_function(self):
         return self.function.subs(zip(self.parameters, self.estimates()))
     
     def plot_regression(self):
         ...
-    
