@@ -10,7 +10,7 @@ class Regression():
     default_functions = {'linear', 'quadratic', 'circular'}
     
     def __init__(self, function: Union[sp.Expr, sp.Symbol, str], x_data: Union[list, np.array, pd.DataFrame], y_data: Union[list, np.array], 
-                 variables: List[sp.Symbol], parameters: Union[List[sp.Symbol]]):
+                 variables: List[sp.Symbol]=None, parameters: Union[List[sp.Symbol]]=None):
         
         if isinstance(x_data, pd.DataFrame):
             x_data = x_data.values
@@ -19,9 +19,11 @@ class Regression():
 
         self.x_data = x_data
         self.y_data = np.array(y_data)
-        self.parameters = parameters
-        self.variables = variables
-        self.parameter_counts = len(self.parameters)
+        if variables:
+            self.variables = variables
+        if parameters:
+            self.parameters = parameters
+            self.parameter_counts = len(self.parameters)
         
         if isinstance(function, str):
             if function.lower() not in self.default_functions:
@@ -125,6 +127,7 @@ class Circular_Regression():
 def gradient_descent(function: Union[sp.Expr, sp.Symbol], parameters: List[sp.Symbol], alpha: float, iterations: int=100, guess=None):
     if not guess:
         guess = np.array([1 for i in range(len(parameters))])
+
     gradient = [sp.diff(function, variable) for variable in parameters]
     gradient_ = sp.lambdify(parameters, gradient, 'numpy')
     
@@ -133,4 +136,5 @@ def gradient_descent(function: Union[sp.Expr, sp.Symbol], parameters: List[sp.Sy
         guess = guess - alpha * np.array(grad_values)
     
     return guess
+    
 
