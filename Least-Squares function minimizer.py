@@ -79,28 +79,50 @@ class Circular_Regression():
     def decision_function(self):
         return sum([(sp.sqrt((self.coordinates[i][0] - self.x_center)**2 + (self.coordinates[i][1] - self.y_center)**2) - self.radius)**2
                     for i in range(len(self.coordinates))])
-        
-    def estimates(self):
-        decision = self.decision_function()
-        parameters = [self.x_center, self.y_center, self.radius]
-        eq1 = sp.diff(decision, self.x_center)
-        eq2 = sp.diff(decision, self.y_center)
-        eq3 = sp.diff(decision, self.radius)
-        equations = lambda params: [sp.diff(decision, variable).subs(zip(parameters, params)) for variable in parameters]
-        initial_guess = [1 for i in range(3)]
-        solutions = root(equations, initial_guess, method='lm')
-        return solutions.x
 
-    def plot_regression(self):
+    def estimates(self):
+        eq1 = lambda x_0, y_0, r: sum([np.sqrt((self.coordinates[i][0] - x_0)**2 + (self.coordinates[i][1] - y_0)**2) - r for i in range(len(self.coordinates))])
+        eq2 = lambda x_0, y_0, r: sum([np.sqrt((self.coordinates[i][0] - x_0)**2 + (self.coordinates[i][1] - y_0)**2 - r) * (self.coordinates[i][0] - x_0)/np.sqrt((self.coordinates[i][0] - x_0)**2 + (self.coordinates[i][1] - y_0)**2) for i in range(len(self.coordinates))])
+        eq3 = lambda x_0, y_0, r: sum([np.sqrt((self.coordinates[i][0] - x_0)**2 + (self.coordinates[i][1] - y_0)**2 - r) * (self.coordinates[i][1] - y_0)/np.sqrt((self.coordinates[i][0] - x_0)**2 + (self.coordinates[i][1] - y_0)**2) for i in range(len(self.coordinates))])
+
+        max_iterations = 100
+        j = 1
+    
+        while j <= max_iterations:
+            equations = lambda x: [eq1(*x), eq2(*x), eq3(*x)]
+            initial_guess = [1 + j, 1 - j, 1]
+            solutions = root(equations, initial_guess, method='lm')
+            
+            if not np.isnan(solutions.x).any():
+                return solutions.x
+            j += 1
+
+    def plot_regression(self, dataset_color='red', legend: bool=False, dataset_label=None, xlabel=None, ylabel=None, **kwargs):
         x_center, y_center, radius = self.estimates()
         data_plotter = pd.DataFrame(self.coordinates)
         regression_x = np.linspace(int(x_center - radius) - 2, int(x_center + radius) + 2, int(100*radius))
         regression_y_upper = np.array([y_center + np.sqrt(radius**2 - (element - x_center)**2) for element in regression_x])
         regression_y_lower = np.array([y_center - np.sqrt(radius**2 - (element - x_center)**2) for element in regression_x])
 
-        plt.scatter(data_plotter[0], data_plotter[1], color='red')
-        plt.plot(regression_x, regression_y_upper, color='blue')
-        plt.plot(regression_x, regression_y_lower, color='blue')
+        color = kwargs.pop('color', 'blue')
+        
+        plt.scatter(data_plotter[0], data_plotter[1], label=dataset_label, color=dataset_color)
+        plt.plot(regression_x, regression_y_upper, color=color, **kwargs)
+        plt.plot(regression_x, regression_y_lower, color=color, **kwargs)
+
+        if legend:
+            plt.legend()
+
+        plt.xlabel(xlabel)
+        plt.ylabel(ylabel)
         plt.axis('equal')
         plt.show()
     
+
+x_eg = np.linspace(-2, 10, 50)
+y_eg_1 = np.array([5 + np.sqrt(36 - (element - 4)**2) + np.random.normal(0, 0.5) for element in x_eg]) 
+y_eg_2 = np.array([5 - np.sqrt(36 - (element - 4)**2) + np.random.normal(0, 0.5) for element in x_eg]) 
+data = np.array([[x_eg[i], y_eg_1[i]] for i in range(len(x_eg))] + [[x_eg[i], y_eg_2[i]] for i in range(len(x_eg))])
+    
+circular_regressor = Circular_Regression(data)
+circular_regressor.plot_regression()
