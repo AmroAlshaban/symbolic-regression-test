@@ -30,12 +30,12 @@ class Regression():
             if function.lower() not in self.default_functions:
                 raise ValueError("Invalid function.")
             elif function.lower() == 'linear':
-                self.function = Linear_Regression(self.x_data, self.y_data, self.variables, self.parameters)
+                self.special_function = Linear_Regression(self.x_data, self.y_data, self.variables, self.parameters)
             elif function.lower() == 'quadratic':
-                self.function = Quadratic_Regression(self.x_data, self.y_data, self.variables, self.parameters)
+                self.special_function = Quadratic_Regression(self.x_data, self.y_data, self.variables, self.parameters)
             elif function.lower() == 'circular':
                 self.coordinates = [[self.x_data[i][0], self.y_data[i]] for i in range(len(self.x_data))]
-                self.function = Circular_Regression(self.coordinates)
+                self.special_function = Circular_Regression(self.coordinates)
         else:
             self.function = function
             self.free_symbols = function.free_symbols
