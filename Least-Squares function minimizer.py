@@ -1,5 +1,6 @@
 import numpy as np
 import sympy as sp
+import pandas as pd
 import matplotlib.pyplot as plt
 from typing import Union, List
 from scipy.optimize import root
