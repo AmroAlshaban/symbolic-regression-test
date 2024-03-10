@@ -67,3 +67,40 @@ class Linear_Regression(Regression):
 class Quadratic_Regression(Regression):
     def __init__(self, x_data, y_data, variables, parameters):
         super().__init__(None, x_data, y_data, variables, parameters)
+
+
+class Circular_Regression():
+    def __init__(self, coordinates: Union[List[float], np.array, pd.DataFrame]):
+        if isinstance(coordinates, pd.DataFrame):
+            coordinates = coordinates.values
+        self.coordinates = np.array(coordinates)
+        self.x_center, self.y_center, self.radius = sp.symbols('x_center y_center radius')
+    
+    def decision_function(self):
+        return sum([(sp.sqrt((self.coordinates[i][0] - self.x_center)**2 + (self.coordinates[i][1] - self.y_center)**2) - self.radius)**2
+                    for i in range(len(self.coordinates))])
+        
+    def estimates(self):
+        decision = self.decision_function()
+        parameters = [self.x_center, self.y_center, self.radius]
+        eq1 = sp.diff(decision, self.x_center)
+        eq2 = sp.diff(decision, self.y_center)
+        eq3 = sp.diff(decision, self.radius)
+        equations = lambda params: [sp.diff(decision, variable).subs(zip(parameters, params)) for variable in parameters]
+        initial_guess = [1 for i in range(3)]
+        solutions = root(equations, initial_guess, method='lm')
+        return solutions.x
+
+    def plot_regression(self):
+        x_center, y_center, radius = self.estimates()
+        data_plotter = pd.DataFrame(self.coordinates)
+        regression_x = np.linspace(int(x_center - radius) - 2, int(x_center + radius) + 2, int(100*radius))
+        regression_y_upper = np.array([y_center + np.sqrt(radius**2 - (element - x_center)**2) for element in regression_x])
+        regression_y_lower = np.array([y_center - np.sqrt(radius**2 - (element - x_center)**2) for element in regression_x])
+
+        plt.scatter(data_plotter[0], data_plotter[1], color='red')
+        plt.plot(regression_x, regression_y_upper, color='blue')
+        plt.plot(regression_x, regression_y_lower, color='blue')
+        plt.axis('equal')
+        plt.show()
+    
