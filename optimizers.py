@@ -40,3 +40,7 @@ def gradient_approximation(function: Union[sp.Expr, sp.Symbol, Callable], at=Non
         gradient.append(value)
 
     return np.array(gradient)
+
+
+def simplex():
+    ...
