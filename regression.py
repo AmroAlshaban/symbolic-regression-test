@@ -2,14 +2,16 @@ import numpy as np
 import pandas as pd
 import sympy as sp
 import matplotlib.pyplot as plt
-from typing import Union, List
 import warnings
+import inspect
+from typing import Union, List, Callable
 from optimizers import gradient_descent
+from custom_errors import *
 
 
 class Regression():
     default_functions = {'linear', 'quadratic', 'circular'}
-    
+
     def __init__(self, function: Union[sp.Expr, sp.Symbol, str], x_data: Union[list, np.array, pd.DataFrame], y_data: Union[list, np.array], 
                  variables: List[sp.Symbol]=None, parameters: Union[List[sp.Symbol]]=None):
         
@@ -20,6 +22,12 @@ class Regression():
 
         self.x_data = x_data
         self.y_data = np.array(y_data)
+
+        if len(self.x_data) == len(self.y_data):
+            self.dataset_length = len(self.x_data)
+        else:
+            raise ImbalanceError("x_data and y_data have different sizes.")
+        
         if variables:
             self.variables = variables
         if parameters:
@@ -39,15 +47,21 @@ class Regression():
         else:
             self.function = function
             self.free_symbols = function.free_symbols
+            self.lambdified_function = sp.lambdify(self.variables + self.parameters, self.function, 'numpy')
 
-    def decision_function(self):
+    def decision_function(self, lambdified: bool=False):
+        if lambdified:
+            decision = lambda *params: sum([(self.lambdified_function(*self.x_data[i], *params) - self.y_data[i])**2 for i in range(len(self.x_data))])
+            return decision
         decision = sum([(self.function.subs(zip(self.variables, self.x_data[i])) - self.y_data[i])**2 for i in range(len(self.x_data))])
         return decision
 
-    def estimates(self, alpha=0.5, iterations=100, guess=None, use_sympy: bool=False):
-        decision = self.decision_function()
+    def estimates(self, alpha=0.5, iterations=100, guess=None, use_sympy: bool=False, lambdified: bool=True):
+        decision = self.decision_function(lambdified)
         message = None
-        if use_sympy:
+        if use_sympy and lambdified:
+            warnings.warn('SymPy solver got ignored; using the lambdified function overwrites the SymPy solver.')
+        elif use_sympy:
             try:
                 equations = [sp.diff(decision, variable) for variable in self.parameters]
                 equations_matrix = sp.Matrix(equations)
@@ -57,18 +71,41 @@ class Regression():
                 message = "No Exact Solution"
         if message:
             warnings.warn(message, UserWarning)
-        
+
         return gradient_descent(function=decision, parameters=self.parameters, alpha=alpha, iterations=iterations, guess=guess)
-
-    def regression_function(self):
-        sympified_estimates = sp.sympify(self.estimates().tolist())
-        return self.function.subs(zip(self.parameters, sympified_estimates))
-
-    def mse(self):
+    
+    def regression_function(self, estimates):
+        estimates = sp.sympify(estimates.tolist())
+        return self.function.subs(zip(self.parameters, estimates))
+    
+    def mse(self, biased=False):
         ...
     
-    def plot_regression():
-        ...
+    def plot_regression(self, estimates, background_style=None, dataset_color='red', legend: bool=False, dataset_label=None, xlabel=None, ylabel=None, **kwargs): 
+        if all([(type(x) == np.ndarray) and (len(x) == 1) for x in self.x_data]) or all([type(x) in [np.float64, np.int32] for x in self.x_data]):
+            x_data = np.array([x[0] for x in self.x_data])
+            regression_x_all = np.linspace(int(x_data.min()) - 2, int(x_data.max()) + 2, int(10*len(x_data)))
+            regression_y_all = np.array([self.regression_function(estimates).subs(self.variables[0], x0) for x0 in regression_x_all])
+            package = np.array([(regression_x_all[i], sp.re(regression_y_all[i])) for i in range(len(regression_x_all)) if abs(sp.im(regression_y_all[i])) < 1e-10])
+            regression_x, regression_y = np.array([[value[0] for value in package], [value[1] for value in package]])
+            
+            color = kwargs.pop('color', 'blue')
+
+            if background_style:
+                plt.style.use(background_style)
+            
+            plt.scatter(x_data, self.y_data, label=dataset_label, color=dataset_color)
+            plt.plot(regression_x, regression_y, color=color, **kwargs)
+    
+            if legend:
+                plt.legend()
+
+            plt.xlabel(xlabel)
+            plt.ylabel(ylabel)
+            plt.axis('equal')
+            plt.show()
+            return
+        raise DimensionError("x_data is not 1D.")
     
 
 class Linear_Regression(Regression):
@@ -123,5 +160,3 @@ class Circular_Regression():
         plt.ylabel(ylabel)
         plt.axis('equal')
         plt.show()
-    
-
