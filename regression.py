@@ -160,3 +160,25 @@ class Circular_Regression():
         plt.ylabel(ylabel)
         plt.axis('equal')
         plt.show()
+
+
+class Elliptic_Regression():
+    def __init__(self, coordinates: Union[List[float], np.array, pd.DataFrame]):
+        if isinstance(coordinates, pd.DataFrame):
+            coordinates = coordinates.values
+        
+        self.coordinates = np.array(coordinates)
+        self.data_plotter = pd.DataFrame(self.coordinates)
+    
+    def estimates(self):
+        ...
+    
+    def mse(self, estimates):
+        ...
+    
+    def regression_curve(self, estimates):
+        ...
+    
+    def plot_regression(self, estimates, dataset_color='red', legend: bool=False, dataset_label=None, xlabel=None, ylabel=None, **kwargs):
+        ...
+
