@@ -188,6 +188,19 @@ class Elliptical_Regression():
         self.t = np.linspace(-np.pi, np.pi, 100)
         
     def parametrization(self, output=None):
+        def get_angle(x_, y_):
+            if x_ > 0 and y_ >= 0:
+                return np.arctan(y_/x_)
+            elif x_ == 0 and y_ >= 0:
+                return np.pi/2
+            elif x_ > 0 and y_ < 0:
+                return 2*np.pi - np.arctan(-y_/x_)
+            elif x_ == 0 and y < _0:
+                return 3*np.pi/2
+            elif x_ < 0 and y_ >= 0:
+                return np.pi - np.arctan(-y_/x_)
+            return np.pi + np.arctan(y_/x_)
+        
         x_new = self.x_data - self.x_mean
         y_new = self.y_data - self.y_mean
         
