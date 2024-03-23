@@ -162,23 +162,101 @@ class Circular_Regression():
         plt.show()
 
 
-class Elliptic_Regression():
-    def __init__(self, coordinates: Union[List[float], np.array, pd.DataFrame]):
-        if isinstance(coordinates, pd.DataFrame):
-            coordinates = coordinates.values
+class Elliptical_Regression():
+    def __init__(self, x_data: Union[list, np.array], y_data: Union[list, np.array], angle_parameter=1, radii_parameter=1):
+        self.x_data = np.array(x_data)
+        self.y_data = np.array(y_data)
         
-        self.coordinates = np.array(coordinates)
-        self.data_plotter = pd.DataFrame(self.coordinates)
-    
-    def estimates(self):
-        ...
+        if len(x_data) != len(y_data):
+            raise ImbalanceError("x_data and y_data have different sizes.")
+        if not isinstance(angle_parameter, float) and not isinstance(angle_parameter, int) and angle_parameter not in ['geometric', 'harmonic', 'regression']:
+            raise TypeError('Invalid parameter input.')
+        if not isinstance(radii_parameter, float) and not isinstance(radii_parameter, int) and radii_parameter not in ['geometric', 'harmonic']:
+            raise TypeError('Invalid parameter input.')
+        if isinstance(angle_parameter, float):
+            self.angle_parameter = np.abs(angle_parameter)
+        else:
+            self.angle_parameter = angle_parameter
+        if isinstance(radii_parameter, float):
+            self.radii_parameter = np.abs(radii_parameter)
+        else:
+            self.radii_parameter = radii_parameter
+
+        self.x_mean = np.mean(x)
+        self.y_mean = np.mean(y)
+        self.size = len(self.x_data)
+        self.t = np.linspace(-np.pi, np.pi, 100)
+        
+    def parametrization(self, output=None):
+        x_new = self.x_data - self.x_mean
+        y_new = self.y_data - self.y_mean
+        
+        if self.angle_parameter == 'geometric':
+            average_angle = np.prod([get_angle(self.x_data[i], self.y_data[i]) for i in range(self.size)])**(1/self.size)
+        elif self.angle_parameter == 'harmonic':
+            average_angle = self.size/sum([1/get_angle(self.x_data[i], self.y_data[i]) for i in range(self.size)])
+        elif self.angle_parameter == 'regression':
+            X = np.array([[1, self.x_data[i]] for i in range(self.size)])
+            b0, b1 = np.matmul(np.matmul(np.linalg.inv(np.matmul(X.T, X)), X.T), self.y_data)
+            average_angle = get_angle(1, b1)
+        else:
+            average_angle = np.sum([(1/self.size)*get_angle(x_new[i], y_new[i])**self.angle_parameter for i in range(self.size)])**(1/self.angle_parameter)
+        
+        transformed_x = np.array([np.cos(average_angle)*x_new[i] + np.sin(average_angle)*y_new[i] for i in range(self.size)])
+        transformed_y = np.array([-np.sin(average_angle)*x_new[i] + np.cos(average_angle)*y_new[i] for i in range(self.size)])
+
+        if self.radii_parameter == 'geometric':
+            a = np.prod([np.abs(transformed_x[i]) for i in range(self.size)])**(1/self.size)
+            b = np.prod([np.abs(transformed_y[i]) for i in range(self.size)])**(1/self.size)
+        elif self.angle_parameter == 'harmonic':
+            a = self.size/np.sum([1/np.abs(transformed_x[i]) for i in range(self.size)])
+            b = self.size/np.sum([1/np.abs(transformed_y[i]) for i in range(self.size)])
+        else:
+            a = sum([(1/self.size)*np.abs(transformed_x[i])**self.radii_parameter for i in range(self.size)])**(1/self.radii_parameter)
+            b = sum([(1/self.size)*np.abs(transformed_y[i])**self.radii_parameter for i in range(self.size)])**(1/self.radii_parameter)
+
+        d1 = np.sqrt(a**2 * np.cos(average_angle)**2 + b**2 + np.sin(average_angle)**2)
+        theta1 = np.arctan((b/a)*np.tan(average_angle))
+        d2 = np.sqrt(a**2 * np.sin(average_angle)**2 + b**2 + np.cos(average_angle)**2)
+        theta2 = np.arctan((a/b)*np.tan(average_angle))
+
+        if output == 'plotting_samples':
+            ellipse_x = np.sqrt(a**2 * np.cos(average_angle)**2 + b**2 + np.sin(average_angle)**2) * np.cos(self.t + np.arctan((b/a)*np.tan(average_angle))) + x_mean
+            ellipse_y = np.sqrt(a**2 * np.sin(average_angle)**2 + b**2 + np.cos(average_angle)**2) * np.sin(self.t + np.arctan((a/b)*np.tan(average_angle))) + y_mean
+            return np.array(ellipse_x), np.array(ellipse_y)
+        elif output is None:
+            if theta1 >= 0 and theta2 >= 0:
+                return [f"x = {d1}cos(t + {theta1})", f"y = {d2}sin(t + {theta2})"]
+            elif theta1 >= 0 and theta2 < 0:
+                return [f"x = {d1}cos(t + {theta1})", f"y = {d2}sin(t - {-theta2})"]
+            elif theta1 < 0 and theta2 >= 0:
+                return [f"x = {d1}cos(t - {-theta1})", f"y = {d2}sin(t + {theta2})"]
+            else:
+                return [f"x = {d1}cos(t - {-theta1})", f"y = {d2}sin(t - {-theta2})"]
+        
+        raise TypeError('Invalid input type.')
+            
     
     def mse(self, estimates):
         ...
     
-    def regression_curve(self, estimates):
-        ...
-    
-    def plot_regression(self, estimates, dataset_color='red', legend: bool=False, dataset_label=None, xlabel=None, ylabel=None, **kwargs):
-        ...
+    def plot_regression(self, background_style=None, dataset_color='red', legend: bool=False, dataset_label=None, xlabel=None, ylabel=None, title=None, **kwargs): 
+        ellipse_x, ellipse_y = self.parametrization(output='plotting_samples')
+
+        color = kwargs.pop('color', 'blue')
+        
+        if background_style:
+            plt.style.use(background_style)
+
+        plt.scatter(self.x_data, self.y_data, label=dataset_label, color=dataset_color)
+        plt.plot(ellipse_x, ellipse_y, color=color, **kwargs)
+
+        if legend:
+            plt.legend()
+
+        plt.xlabel(xlabel)
+        plt.ylabel(ylabel)
+        plt.title(title)
+        plt.axis('equal')
+        plt.show()
 
