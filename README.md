@@ -6,3 +6,7 @@ Let $AB = a, AD = b, AC = \lambda b, CP = t_1 CB, DP = t_2 DE$  where $a$ and $b
 
 The equation of simple harmonic motion is given by $x = A\sin(\omega t) + B\cos(\omega t)$, and adding a constant does not change the nature of the equation since it just shifts the function, and we can take the constant to the LHS and create a new variable. The only one that cannot be written in this form is B.
 
+
+$$ \left( \begin{array}{ccc} 1 & 0 & 0 \\
+1 & 1 & 0 \\ 
+0 & 1 & 1 \end{array} \right) $$
