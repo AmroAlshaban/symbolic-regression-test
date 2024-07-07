@@ -10,3 +10,5 @@ The equation of simple harmonic motion is given by $x = A\sin(\omega t) + B\cos(
 $$ \left( \begin{array}{ccc} 1 & 0 & 0 \\
 1 & 1 & 0 \\ 
 0 & 1 & 1 \end{array} \right) $$
+
+Write $\tan^2(x) = \frac{\sin^2(x)}{\cos^2(x)}$ and remember that $\sin^2(x) = \frac{1}{2} \left(1 - \cos(2x) \right)$, now find a similar identity for $\cos^2(x)$ and you'll reach the result.
