@@ -21,3 +21,6 @@ Expand $\left|z_1 - z_2 \right|^2 + \left|z_2 - z_3 \right|^2 + \left|z_3 - z_4 
 The basic idea here is that the two statements, the first regarding $X$ and the second regarding $Y$, are identical; you can transform each problem into the other. 
 For instance, consider $\sum_{i=1}^{n} y_i = a - \frac{1}{2} n \left(n + 1 \right) \in \mathbb{N}$. Then, you can transform this problem into:
 $a = \sum_{i=1}^{n} y_i + \frac{1}{2} n \left(n + 1 \right) = \sum_{i=1}^{n} y_i + \sum_{i=1}^{n} i = \sum_{i=1}^{n} \left(y_i + i \right)$, and now simply rename $y_i + i = x_i$, and you can do the same thing in reverse. So essentially you're not changing the problem or the size of the solution set, you're just transforming the values. 
+
+
+The equation of the regression line is given by $y = mx + \left(\bar{y} - m \bar{x} \right)$ where $m$ is the slope/gradient of the regression line, $\bar{x}$ is the mean of the years and $\bar{y}$ is the mean of the number of colonies (this is because the mean of the given sample must lie on the regression line, so the $y$-intercept is given by $\bar{y} - m \bar{x}$). Assuming you know what the slope is (you could use a formula or just approximate it from your graph), just substitute $x = 2040$ into the equation of the line.
