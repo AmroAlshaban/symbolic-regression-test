@@ -55,7 +55,7 @@ Putting everything in one side, we get:
 
 $$\left(300 - \frac{18(161)}{200}\right) + \frac{9(161)}{200} + \frac{9}{400}\left({s_1}^2 + {s_2}^2 \right) - 6(s_1 + s_2) = 0$$
 $$\frac{9}{400}(s_1 + s_2)^2 - 6(s_1 + s_2) + \frac{28551}{100} = 0$$
-$$s_1 + s_2 = \frac{6 \pm \sqrt{36 - 4\left(\frac{9}{400}\righ)\left(\frac{28551}{100}\right)}}{2\left(\frac{9}{400}\right)} = \frac{6 \pm \frac{321}{100}}{\frac{9}{200}}$$
+$$s_1 + s_2 = \frac{6 \pm \sqrt{36 - 4\left(\frac{9}{400}\right)\left(\frac{28551}{100}\right)}}{2\left(\frac{9}{400}\right)} = \frac{6 \pm \frac{321}{100}}{\frac{9}{200}}$$
 $$s_1 + s_2 = 62 \text{or} \ \frac{614}{3}$$
 
 The larger root can be shown to be contradictory since it would make $c < 0$, so $s_1 + s_2 = ab + cd = 62$.
