@@ -38,3 +38,27 @@ For each choice, we must find $x$ and $y$ and then test the choices given and se
 The idea is correct but it's not necessary that $-2x + \frac{3}{2} y = mx$ and $-x - \frac{3}{2} y = my$, where $m$ is the slope. It's given by $-2x + \frac{3}{2} y = \alpha x$ and $-x - \frac{3}{2} y = \alpha y$ for some $\alpha$. But we don't really need to do this, just remember that $\binom{-2x + \frac{3}{2} y}{-x - \frac{3}{2} y}$ lines inside the line $y = mx$ so just substitute and solve for $m$.
 
 Let $\binom{x}{y}$ be a point inside the line $y = mx$ and let's assume that this line is invariant under the transformation CAB (i.e. CAB multiplied by $\binom{x}{y}$ must ALSO lie inside the line $y = mx$). We have $CAB\binom{x}{y} = \binom{-2x + \frac{3}{2} y}{-x - \frac{3}{2} y}$. But as we agreed, we have $y = mx$ and the new output must also lie inside the line, so $-x - \frac{3}{2} y = m\left(-2x + \frac{3}{2} y \right)$. Finally replace $y$ with $mx$, so we get $-x - \frac{3}{2} (mx) = m\left(-2x + \frac{3}{2} (mx) \right)$. Now, you must find the values of $m$ so that this equation holds true.
+
+I wrote $a = b - k, c = b + k$ and $d = b + 2k$, where WLOG $k > 0$, then added them to get $4b + 2k = 20$ getting $k = 10 - 2b$. I didn't try to find $a, b, c, d$ in terms of $k$ so my solution got longer, but nonetheless interesting.
+
+So we have $ab = b(3b - 10) = s_1$ and $cd = (b - 10)(3b - 20) = s_2$. We have $3b^2 - 10b - s_1 = 0$ and $3b^2 - 50b + (200 - s_2) = 0$. Solving for $b$, we find:
+
+$$b = \frac{10 + \sqrt{100 + 12s_1}}{6} \text{and} \ b = \frac{50 - \sqrt{100 + 12s_2}}{6}$$
+
+In the former, we take the larger root because $b > 0$, and in the latter we choose the smaller root because picking the larger root would be contradictory $(50 + \sqrt{100 + 12s_2} > 10 + \sqrt{100 + 12s_1})$. Equating both answers, we get:
+
+$$\sqrt{100 + 12s_1} = 40 - \sqrt{100 + 2s_2} \rightarrow 100 + 12s_1 = 1600 - 80\sqrt{100 + 12s_2} + 100 + 12s_2$$
+$$\sqrt{100 + 12s_2} = 20 + \frac{3}{20} (s_2 - s_1)$$
+$$100 + 12s_2 = 400 + \frac{9}{400} {s_2}^2 + \frac{9}{400} {s_1}^2 - \frac{9}{200}(161)$$
+
+Putting everything in one side, we get:
+
+$$\left(300 - \frac{18(161)}{200}\right) + \frac{9(161)}{200} + \frac{9}{400}\left({s_1}^2 + {s_2}^2 \right) - 6(s_1 + s_2) = 0$$
+$$\frac{9}{400}(s_1 + s_2)^2 - 6(s_1 + s_2) + \frac{28551}{100} = 0$$
+$$s_1 + s_2 = \frac{6 \pm \sqrt{36 - 4\left(\frac{9}{400}\righ)\left(\frac{28551}{100}\right)}}{2\left(\frac{9}{400}\right)} = \frac{6 \pm \frac{321}{100}}{\frac{9}{200}}$$
+$$s_1 + s_2 = 62 \text{or} \ \frac{614}{3}$$
+
+The larger root can be shown to be contradictory since it would make $c < 0$, so $s_1 + s_2 = ab + cd = 62$.
+
+
+
